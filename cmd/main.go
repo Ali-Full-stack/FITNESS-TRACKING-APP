@@ -4,11 +4,12 @@ import (
 	"context"
 	"flag"
 	"log/slog"
-	"net/http"
 	"os"
 
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/config"
+	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/router"
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/server"
+	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/storage"
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/storage/postgres"
 	_ "github.com/lib/pq"
 )
@@ -22,13 +23,13 @@ func main() {
 
 	cfg, err := config.Load(*cfgFlag)
 	if err != nil {
-		logger.Error("failed to load config file: %v", err)
+		logger.Error("failed to load config file:", slog.Any("error", err))
 		os.Exit(1)
 	}
 
 	db, err := postgres.New(cfg.DBString())
 	if err != nil {
-		logger.Error("failed to connect: %v", err)
+		logger.Error("failed to connect:", )
 		os.Exit(1)
 	}
 	defer db.Close()
@@ -37,23 +38,20 @@ func main() {
 
 	err = db.Ping(ctx)
 	if err != nil {
-		logger.Error("failed to ping: %v", err)
+		logger.Error("failed to ping:", slog.Any("error", err))
 		os.Exit(1)
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Test"))
-	})
 	
+	queries := storage.New(db)
+	mux :=router.NewMux(logger , *queries)
+
 	srv := server.New(cfg.GetHostPost(), mux, *logger)
 	if err := srv.Run(); err != nil {
-		logger.Error("http server: %v", err)
+		logger.Error("http server: ", slog.Any("error", err))
 		os.Exit(1)
 	}
 
-	// ctx := context.Background()
-	// queries := storage.New(db)
 
 	// m := map[string]any{
 	// 	"age": 10,
@@ -63,17 +61,6 @@ func main() {
 	// b, err := json.Marshal(m)
 	// if err != nil {
 	// 	logger.Error("failed to marshal")
-	// 	os.Exit(1)
-	// }
-
-	// user, err := queries.CreateUser(ctx, storage.CreateUserParams{
-	// 	Username:     sql.NullString{String: "test1", Valid: true},
-	// 	Email:        sql.NullString{String: "test@email.com", Valid: true},
-	// 	PasswordHash: sql.NullString{String: "haashed", Valid: true},
-	// 	Profile:      pqtype.NullRawMessage{RawMessage: b, Valid: true},
-	// })
-	// if err != nil {
-	// 	logger.Error("failed to create user")
 	// 	os.Exit(1)
 	// }
 

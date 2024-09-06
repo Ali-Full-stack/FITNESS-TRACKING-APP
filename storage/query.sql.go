@@ -7,7 +7,6 @@ package storage
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/sqlc-dev/pqtype"
 )
@@ -19,9 +18,9 @@ RETURNING id, username, email, password_hash, profile
 `
 
 type CreateUserParams struct {
-	Username     sql.NullString
-	PasswordHash sql.NullString
-	Email        sql.NullString
+	Username     string
+	PasswordHash string
+	Email        string
 	Profile      pqtype.NullRawMessage
 }
 
@@ -79,8 +78,8 @@ ORDER BY username
 
 type ListUsersRow struct {
 	ID       int32
-	Username sql.NullString
-	Email    sql.NullString
+	Username string
+	Email    string
 	Profile  pqtype.NullRawMessage
 }
 
@@ -123,8 +122,8 @@ WHERE id = $1
 
 type UpdateUserParams struct {
 	ID       int32
-	Username sql.NullString
-	Email    sql.NullString
+	Username string
+	Email    string
 	Profile  pqtype.NullRawMessage
 }
 
