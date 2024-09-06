@@ -1,0 +1,14 @@
+app:
+  name:
+  env: dev
+postgres:
+  host: 
+  port: 
+  username: 
+  password: 
+  dbname: 
+  sslmode: 
+server:
+  http:
+    host: 
+    port:
