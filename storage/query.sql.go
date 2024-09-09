@@ -7,6 +7,8 @@ package storage
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
 	"github.com/sqlc-dev/pqtype"
 )
@@ -42,6 +44,33 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const createWorkout = `-- name: CreateWorkout :one
+INSERT INTO workouts (user_id, name, description)
+VALUES ($1, $2, $3)
+RETURNING id, user_id, name, description, date, created_at, updated_at
+`
+
+type CreateWorkoutParams struct {
+	UserID      int32
+	Name        string
+	Description sql.NullString
+}
+
+func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (Workout, error) {
+	row := q.db.QueryRowContext(ctx, createWorkout, arg.UserID, arg.Name, arg.Description)
+	var i Workout
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Description,
+		&i.Date,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1
@@ -49,6 +78,21 @@ WHERE id = $1
 
 func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
+const deleteWorkout = `-- name: DeleteWorkout :exec
+DELETE FROM workouts 
+WHERE id = $1 and user_id = $2
+`
+
+type DeleteWorkoutParams struct {
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) error {
+	_, err := q.db.ExecContext(ctx, deleteWorkout, arg.ID, arg.UserID)
 	return err
 }
 
@@ -68,6 +112,69 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 		&i.Profile,
 	)
 	return i, err
+}
+
+const getWorkoutByID = `-- name: GetWorkoutByID :one
+SELECT id, user_id, name, description, date, created_at, updated_at 
+FROM workouts 
+WHERE id = $1 and user_id = $2
+`
+
+type GetWorkoutByIDParams struct {
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) GetWorkoutByID(ctx context.Context, arg GetWorkoutByIDParams) (Workout, error) {
+	row := q.db.QueryRowContext(ctx, getWorkoutByID, arg.ID, arg.UserID)
+	var i Workout
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Description,
+		&i.Date,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getWorkoutByUserID = `-- name: GetWorkoutByUserID :many
+SELECT id, user_id, name, description, date, created_at, updated_at 
+FROM workouts 
+WHERE user_id = $1
+`
+
+func (q *Queries) GetWorkoutByUserID(ctx context.Context, userID int32) ([]Workout, error) {
+	rows, err := q.db.QueryContext(ctx, getWorkoutByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Workout
+	for rows.Next() {
+		var i Workout
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.Description,
+			&i.Date,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listUsers = `-- name: ListUsers :many
@@ -135,4 +242,41 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 		arg.Profile,
 	)
 	return err
+}
+
+const updateWorkout = `-- name: UpdateWorkout :exec
+UPDATE workouts 
+SET name = $3, description = $4, date = $5, updated_at = now()
+WHERE id = $1 and user_id = $2
+`
+
+type UpdateWorkoutParams struct {
+	ID          int32
+	UserID      int32
+	Name        string
+	Description sql.NullString
+	Date        time.Time
+}
+
+func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) error {
+	_, err := q.db.ExecContext(ctx, updateWorkout,
+		arg.ID,
+		arg.UserID,
+		arg.Name,
+		arg.Description,
+		arg.Date,
+	)
+	return err
+}
+
+const verifyUserLogin = `-- name: VerifyUserLogin :one
+SELECT password_hash FROM users 
+WHERE id = $1
+`
+
+func (q *Queries) VerifyUserLogin(ctx context.Context, id int32) (string, error) {
+	row := q.db.QueryRowContext(ctx, verifyUserLogin, id)
+	var password_hash string
+	err := row.Scan(&password_hash)
+	return password_hash, err
 }

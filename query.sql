@@ -23,3 +23,31 @@ WHERE id = $1;
 -- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;
+
+-- name: VerifyUserLogin :one
+SELECT password_hash FROM users 
+WHERE id = $1;
+
+-- name: CreateWorkout :one
+INSERT INTO workouts (user_id, name, description)
+VALUES ($1, $2, $3)
+RETURNING * ;
+
+-- name: GetWorkoutByUserID :many
+SELECT id, user_id, name, description, date, created_at, updated_at 
+FROM workouts 
+WHERE user_id = $1 ;
+
+-- name: GetWorkoutByID :one
+SELECT id, user_id, name, description, date, created_at, updated_at 
+FROM workouts 
+WHERE id = $1 and user_id = $2 ;
+
+-- name: UpdateWorkout :exec
+UPDATE workouts 
+SET name = $3, description = $4, date = $5, updated_at = now()
+WHERE id = $1 and user_id = $2 ;
+
+-- name: DeleteWorkout :exec
+DELETE FROM workouts 
+WHERE id = $1 and user_id = $2 ;

@@ -2,4 +2,4 @@ package errors
 
 import "errors"
 
-var ErrDecodeUserRegister = errors.New("failed to get user data")
+var ErrDecodeRequestBody = errors.New("invalid data . ")

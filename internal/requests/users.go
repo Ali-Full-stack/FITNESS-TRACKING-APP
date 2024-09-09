@@ -1,4 +1,4 @@
-package router
+package requests
 
 type UserRegisterRequest struct {
 	Username string `json:"username"`
@@ -11,4 +11,13 @@ type UserRegisterRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Profile  map[string]any `json:"profile,omitempty"`
+ }
+
+ type UserLoginRequest struct{
+	ID string  `json:"id"`
+	Password string `json:"password"`
+ }
+
+ type UserLoginResponse struct{
+	Token string `json:"token"`
  }
