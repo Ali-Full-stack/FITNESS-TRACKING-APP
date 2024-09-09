@@ -43,10 +43,10 @@ SELECT id, user_id, name, description, date, created_at, updated_at
 FROM workouts 
 WHERE id = $1 and user_id = $2 ;
 
--- name: UpdateWorkout :exec
+-- name: UpdateWorkoutByUserID :exec
 UPDATE workouts 
-SET name = $3, description = $4, date = $5, updated_at = now()
-WHERE id = $1 and user_id = $2 ;
+SET name = $3, description = $4  , updated_at = now()
+WHERE id = $1 and user_id = $2;
 
 -- name: DeleteWorkout :exec
 DELETE FROM workouts 

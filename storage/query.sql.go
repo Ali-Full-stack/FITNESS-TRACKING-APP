@@ -8,7 +8,6 @@ package storage
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/sqlc-dev/pqtype"
 )
@@ -244,27 +243,25 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	return err
 }
 
-const updateWorkout = `-- name: UpdateWorkout :exec
+const updateWorkoutByUserID = `-- name: UpdateWorkoutByUserID :exec
 UPDATE workouts 
-SET name = $3, description = $4, date = $5, updated_at = now()
+SET name = $3, description = $4  , updated_at = now()
 WHERE id = $1 and user_id = $2
 `
 
-type UpdateWorkoutParams struct {
+type UpdateWorkoutByUserIDParams struct {
 	ID          int32
 	UserID      int32
 	Name        string
 	Description sql.NullString
-	Date        time.Time
 }
 
-func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) error {
-	_, err := q.db.ExecContext(ctx, updateWorkout,
+func (q *Queries) UpdateWorkoutByUserID(ctx context.Context, arg UpdateWorkoutByUserIDParams) error {
+	_, err := q.db.ExecContext(ctx, updateWorkoutByUserID,
 		arg.ID,
 		arg.UserID,
 		arg.Name,
 		arg.Description,
-		arg.Date,
 	)
 	return err
 }

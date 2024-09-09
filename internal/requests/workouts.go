@@ -20,3 +20,13 @@ type CreateWorkoutResponse struct {
 	Created_at  string      `json:"created_at"`
 	Updated_at  string      `json:"updated_at"`
 }
+
+type UpdateWorkoutRequest struct{
+	ID int32 `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description"`
+}
+
+type WorkoutResponse struct{
+	Message string `json:"message"`
+}

@@ -19,7 +19,11 @@ func NewMux(logger *slog.Logger, storage storage.Queries) http.Handler {
 
 	//WORKOUTS
 	mux.HandleFunc("POST /api/workouts",  handler.CreateWorkouts)
-	mux.HandleFunc("GET /api/workouts/{id}", handler.GetWorkoutsByID)
+	mux.HandleFunc("GET /api/workouts/{id}", handler.GetWorkoutsByUserID)
+	mux.HandleFunc("GET /api/workouts", handler.GetWorkoutsByID)
+	mux.HandleFunc("PUT /api/workouts/{id}", handler.UpdateWorkoutsByUserID)
+	mux.HandleFunc("DELETE /api/workouts", handler.DeleteWorkoutsByID)
+
 	return mux
 }
 
