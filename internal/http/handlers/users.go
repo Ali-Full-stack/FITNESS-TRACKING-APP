@@ -8,7 +8,7 @@ import (
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/auth/token"
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/errors"
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/auth/hash"
-	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/requests"
+	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/http/requests"
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/storage"
 )
 
@@ -55,16 +55,19 @@ func (h Handler) UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errors.ErrDecodeRequestBody.Error(), http.StatusBadRequest)
 		return
 	}
-	hash, err := h.Storage.VerifyUserLogin(r.Context(), LoginReq.ID)
+	hashPassword, err := h.Storage.VerifyUserLogin(r.Context(), LoginReq.ID)
 	if err != nil {
 		h.Logger.Error("failed to check user login  from db", slog.Any("error", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	if hash != LoginReq.Password {
+
+
+	if !hash.VerifyPassword(LoginReq.Password, hashPassword) {
 		http.Error(w, "Invalid Password !!", http.StatusBadRequest)
 		return
 	}
+
 	accessToken, err := token.GenerateToken(LoginReq.ID, "user")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

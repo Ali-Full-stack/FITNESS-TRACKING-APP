@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/requests"
+	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/http/requests"
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
@@ -25,7 +25,7 @@ func GenerateToken(id int32, role string) (*requests.UserLoginResponse, error) {
 	return &requests.UserLoginResponse{Token: accessToken}, nil
 }
 
-func VerifyToken(token, key string) error {
+func VerifyToken(token string) error {
 	tokens, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(key), nil
 	})

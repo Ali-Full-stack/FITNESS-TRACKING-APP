@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/errors"
-	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/requests"
+	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/http/requests"
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/storage"
 )
 

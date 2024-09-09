@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/config"
-	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/router"
-	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/server"
+	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/http/router"
+	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/internal/http/server"
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/storage"
 	"github.com/Ali-Full-stack/FITNESS-TRACKING-APP/storage/postgres"
 	_ "github.com/lib/pq"
