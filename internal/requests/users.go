@@ -14,7 +14,7 @@ type UserRegisterRequest struct {
  }
 
  type UserLoginRequest struct{
-	ID string  `json:"id"`
+	ID int32  `json:"id"`
 	Password string `json:"password"`
  }
 
