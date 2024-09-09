@@ -50,8 +50,16 @@ func (h Handler) CreateWorkouts(w http.ResponseWriter, r *http.Request) {
 
 func (h Handler) GetWorkoutsByID(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
-	id, _ := strconv.Atoi(idString)
-
+	if idString == " " {
+		http.Error(w, "Missing User ID !", http.StatusBadRequest)
+		return
+	}
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, errors.ErrConvertingStringToInt.Error(), http.StatusInternalServerError)
+		return
+	}
+	
 	workouts, err := h.Storage.GetWorkoutByUserID(r.Context(), int32(id))
 	if err != nil {
 		h.Logger.Error("failed to get  workouts from db", slog.Any("error", err))
@@ -59,7 +67,7 @@ func (h Handler) GetWorkoutsByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var listWorkouts []requests.CreateWorkoutResponse
-	for _, w :=range workouts {
+	for _, w := range workouts {
 		workoutResp := requests.CreateWorkoutResponse{
 			ID:          w.ID,
 			User_ID:     w.UserID,
